@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Built-By: mbogu
+Build-Jdk: 15.0.1
+Implementation-Title: example-subscriber
+Implementation-Version: 4.1.3.7
+Implementation-Vendor-Id: eu.arrowhead
+Implementation-Vendor: Pivotal Software, Inc.
+Implementation-URL: https://github.com/arrowhead-f/client-java-spring/ex
+ ample-subscriber
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+</style>
+<title>Get Started</title>
+<script
+	src="chart.js"></script>
+</head>
+<body>
+	<div id="outer">
+		<h1>Receive messages from a specific date range from MongoDB.</h1>
+		<p style="font-size: large;">Note that the times of the messages
+			in MongoDB are in UTC.</p>
+		<p style="font-size: large;">The dates must be in the following
+			format: yyyy-MM-ddTHH:mm:ss.SSSXXX</p>
+		<p style="font-size: large;">Example: 2018-06-12T19:30</p>
+		<form id="form">
+			<label id="Thelabel">Start date:</label> <input type="datetime-local"
+				id="start-date" name="meeting-time" value="2021-06-15T14:09">
+
+			<label id="Thelabel">End date:</label> <input type="datetime-local"
+				id="end-date" name="meeting-time" value="2021-06-18T10:59">
+
+			<label id="TheLabel">Topic:</label> <input type="text" id="topic"
+				name="topic" value="mySensor">
+		</form>
+
+
+		<button class="button" id="button1" onclick="getFunctionTable()">
+			<span id="span1">Show Messages</span>
+		</button>
+
+
+		<button class="button" id="button2" onclick="getFunctionChart()">
+			<span id="span1">Show diagram</span>
+		</button>
+		<div id="chartStyle" style="height: 500px">
+			<canvas id="chart"></canvas>
+		</div>
+		
+
+		<table id="myData" style="width: 50%"></table>
+
+
+		<script type="text/javascript">
+
+		function getFunctionTable() {
+		    startdate = document.getElementById("start-date").value;
+		    enddate = document.getElementById("end-date").value;
+		    topic = document.getElementById("topic").value;
+		    
+		    
+		    removeDataTable();
+		    removeDataChart();
+		    
+		    
+            fetch('http://localhost:8081/jsonData?d1='+startdate+':00.000%2B00:00&d2='+enddate+':00.000%2B02:00&topic='+topic)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                appendDataTable(data);
+            })
+            .catch(function (err) {
+                console.log('error: ' + err);
+            });
+		    
+		}
+		
+		function getFunctionChart() {
+		    startdate = document.getElementById("start-date").value;
+		    enddate = document.getElementById("end-date").value;
+		    topic = document.getElementById("topic").value;
+		    
+		    removeDataTable();
+		    removeDataChart();
+		    
+		    
+            fetch('http://localhost:8081/jsonData?d1='+startdate+':00.000%2B00:00&d2='+enddate+':00.000%2B02:00&topic='+topic)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                showDiagram(data);
+            })
+            .catch(function (err) {
+                console.log('error: ' + err);
+            });
+		
+		}
+		
+		
+		function showDiagram(mydata) {
+			const xlabels = [];
+			const ydata = [];
+			
+			mydata.forEach(element =>{
+				xlabels.push(element.date);
+				ydata.push(element.message);
+			});
+			
+			const data = {
+			  labels: xlabels,
+			  datasets: [{
+			    label: 'Messages',
+			    backgroundColor: 'rgb(255, 99, 132)',
+			    borderColor: 'rgb(255, 99, 132)',
+			    data: ydata,
+			  }]
+			};
+			
+			const config = {
+					  type: 'line',
+					  data,
+					  options: {responsive: true,
+						    maintainAspectRatio: false}
+					};
+			
+			var myChart = new Chart(
+				    document.getElementById('chart'),
+				    config
+				  );
+		}
+		
+		function appendDataTable(data) {
+            var table = document.getElementById("myData");
+            table.setAttribute("id", "myData");
+            var tr = document.createElement("tr");
+            var thm = document.createElement("th");
+            var tht = document.createElement("th");
+            var thd = document.createElement("th");
+            thm.innerHTML = 'Message';
+            tht.innerHTML = 'Topic';
+            thd.innerHTML = 'Date';
+            
+            tr.appendChild(thm);
+            tr.appendChild(tht);
+            tr.appendChild(thd);
+            table.appendChild(tr);
+            
+            
+            data.forEach(element => {
+            	var div = document.createElement("div");
+            	var tr1 = document.createElement("tr");
+            	var tdm = document.createElement("td");
+                var tdt = document.createElement("td");
+                var tdd = document.createElement("td");
+                tdm.innerHTML = element.message;
+                tdt.innerHTML = element.topic;
+                tdd.innerHTML = element.date;
+                
+                tr1.appendChild(tdm);
+                tr1.appendChild(tdt);
+                tr1.appendChild(tdd);
+                table.appendChild(tr1);
+            });
+            mainContainer.appendChild(table);
+        }
+		
+		function removeDataChart() {
+            var chart = document.getElementById("chart");
+            chart.remove();
+            var div1 = document.getElementById("chartStyle");
+            div1.remove();
+            var div = document.createElement("div");
+            div.setAttribute("id", "chartStyle");
+            div.setAttribute("style", "height: 500px");
+            var canvas = document.createElement("canvas");
+            canvas.setAttribute("id", "chart");
+            
+            var outer = document.getElementById("outer");
+            outer.appendChild(div);
+            div.appendChild(canvas);
+        }
+		
+		function removeDataTable() {
+            var mainContainer = document.getElementById("myData");
+            mainContainer.remove();
+            var table = document.createElement("table");
+            table.setAttribute("id", "myData");
+            table.setAttribute("style", "width:50%");
+            var outer = document.getElementById("outer");
+            outer.appendChild(table);
+        }
+		
+		</script>
+
+
+	</div>
+</body>
+</html>
